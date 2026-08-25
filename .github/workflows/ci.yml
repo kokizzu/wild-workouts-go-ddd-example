@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # CI never pushes images, so any project id works
+  PROJECT_ID: ci
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.work
+
+      - name: Install Task
+        run: go install github.com/go-task/task/v3/cmd/task@latest
+
+      - name: Lint
+        run: |
+          task lint:install
+          task lint
+
+      - name: Build images
+        run: |
+          task docker:build SERVICE=trainer PROJECT_ID="$PROJECT_ID"
+          task docker:build SERVICE=trainings PROJECT_ID="$PROJECT_ID"
+          task docker:build SERVICE=users PROJECT_ID="$PROJECT_ID"
+
+      - name: Start services
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
+
+      - name: Test
+        run: task test
+
+      - name: Show service logs
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml logs
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build web
+        working-directory: web
+        env:
+          # webpack 4 uses a hash algorithm removed from OpenSSL 3 (Node 17+)
+          NODE_OPTIONS: --openssl-legacy-provider
+        run: |
+          yarn install
+          yarn build
