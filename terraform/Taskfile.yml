@@ -33,8 +33,7 @@ tasks:
     cmds:
       - |
         echo
-        printf "=%.0s" {1..80}
-        echo
+        echo "================================================================================"
         echo
         printf "\e[93mThe setup is almost done!\e[0m\n"
         echo

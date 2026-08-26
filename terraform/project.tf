@@ -12,6 +12,10 @@ resource "google_project" "project" {
   project_id      = var.project
   billing_account = data.google_billing_account.account.id
   deletion_policy = "DELETE"
+
+  lifecycle {
+    ignore_changes = [org_id]
+  }
 }
 
 resource "google_project_iam_member" "owner" {

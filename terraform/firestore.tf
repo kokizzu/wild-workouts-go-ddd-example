@@ -14,12 +14,12 @@ resource "google_firestore_index" "trainings_user_time" {
   collection = "trainings"
 
   fields {
-    field_path = "UserUuid"
+    field_path = "Canceled"
     order      = "ASCENDING"
   }
 
   fields {
-    field_path = "Canceled"
+    field_path = "UserUuid"
     order      = "ASCENDING"
   }
 
