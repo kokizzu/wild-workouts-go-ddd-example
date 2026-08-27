@@ -1,6 +1,12 @@
 provider "google" {
   project = var.project
   region  = var.region
+
+  # Some APIs (e.g. firebase.googleapis.com) refuse user credentials without a
+  # quota project. The provider doesn't pick up the one from the gcloud ADC file,
+  # so it has to be set here.
+  user_project_override = true
+  billing_project       = var.project
 }
 
 data "google_billing_account" "account" {
@@ -11,7 +17,7 @@ resource "google_project" "project" {
   name            = "Wild Workouts"
   project_id      = var.project
   billing_account = data.google_billing_account.account.id
-  deletion_policy = "DELETE"
+  deletion_policy = var.project_deletion_policy
 
   lifecycle {
     ignore_changes = [org_id]

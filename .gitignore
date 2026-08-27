@@ -24,6 +24,7 @@ vendor/
 *.tfstate.*backup
 .env.custom
 terraform/.env
+terraform/*.auto.tfvars
 terraform/cloud-builders-community
 
 /web/src/repositories/clients/*

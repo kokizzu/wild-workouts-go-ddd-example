@@ -2,6 +2,9 @@ provider "google-beta" {
   project     = var.project
   region      = var.region
   credentials = base64decode(google_service_account_key.firebase_key.private_key)
+
+  user_project_override = true
+  billing_project       = var.project
 }
 
 resource "google_service_account" "firebase" {

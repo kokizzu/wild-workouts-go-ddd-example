@@ -64,6 +64,13 @@ If you run this setup from a fork, set the `TF_VAR_github_repository` environmen
 
 If you want to tear down the project, run `task destroy`.
 
+A deleted project ID can never be reused, and the Hosting URL (`https://<project>.web.app`) is
+derived from it. To protect a project you intend to keep, put this in a `*.auto.tfvars` file:
+
+```hcl
+project_deletion_policy = "PREVENT"
+```
+
 If you want to create it again, make sure to:
 * Use different project name.
 * Remove `terraform.tfstate` file.
